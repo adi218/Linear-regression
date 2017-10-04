@@ -1,3 +1,6 @@
 import numpy as np
-a = np.array([1,2,3])
-print (a)
+import h5py
+f = h5py.File('dataset1.mat', 'r')
+data = f.get('data/variable1')
+data = np.array(data)
+print(data)
