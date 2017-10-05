@@ -1,4 +1,57 @@
 import numpy as np
 import scipy.io
-mat = scipy.io.loadmat('file.mat')
-print(mat)
+import matplotlib.pyplot as plt
+
+# a = np.matrix('1 2:3 4')
+# total_loss = 0.0
+# hyp = np.dot(theta.T, x_trn, t_loss)
+
+
+def loss():
+    temp = hyp - y_trn
+    total_loss = np.linalg.norm(temp, ord=2)
+
+def close_form(trn_x, trn_y):
+
+    theta = np.dot(np.dot(np.linalg.inv(np.dot(trn_x.T, trn_x)), trn_x.T), trn_y)
+    print(theta)
+    return theta
+
+
+
+
+
+
+data = scipy.io.loadmat('dataset1.mat')
+x = np.asmatrix(data['X_trn'])
+y = np.asmatrix(data['Y_trn'])
+x_ones = np.ones(120)
+x_ones = np.matrix(x_ones)
+x_ones = x_ones.T
+x_sq = np.square(x)
+print(x_sq.shape)
+x = np.append(x_ones, x, 1)
+x = np.append(x, x_sq, 1)
+theta = close_form(x, y)
+print(theta.shape)
+print(x.shape)
+predict = np.matmul(x, theta)
+print('asdasd')
+print(predict.shape)
+plt.scatter([x[:, 1]], [y[:, 0]])
+plt.plot(x[:, 1], predict[:, 0], color='red')
+plt.show()
+# print(data['X_trn'])
+# print(data['X_trn'].ndim)
+# print(data['Y_trn'])
+# print(data['Y_trn'].ndim)
+#
+# combined = np.vstack((data['X_trn'].ndim, data['Y_trn'].ndim))
+# print('shape of the data is [%d, %d]' % combined.shape)
+
+
+
+
+
+
+
