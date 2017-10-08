@@ -1,43 +1,82 @@
 import numpy as np
 import scipy.io
 import matplotlib.pyplot as plt
+import random
+import math
 
 # a = np.matrix('1 2:3 4')
 # total_loss = 0.0
 # hyp = np.dot(theta.T, x_trn, t_loss)
 
 
-def loss():
-    temp = hyp - y_trn
+def loss(trn_x, trn_y, theta):
+    temp = np.dot(trn_x, theta) - trn_y
     total_loss = np.linalg.norm(temp, ord=2)
+    return total_loss
+
 
 def close_form(trn_x, trn_y):
-
     theta = np.dot(np.dot(np.linalg.inv(np.dot(trn_x.T, trn_x)), trn_x.T), trn_y)
-    print(theta)
+    # print(theta)
     return theta
 
 
+def stoch_grad_descent(trn_x, trn_y, l_rate, batch):
+    theta_f = np.ones((trn_x.shape[1], 1))*5
+    print(theta_f)
+    idx = np.random.randint(120, size=batch)
+    print(idx)
+    batch_x = np.empty_like(trn_x)
+    batch_x = np.array(batch_x)[new_x_incides]
+    batch_x = np.asmatrix(batch_x)
+    batch_x = batch_x.T
+    print(batch_x)
+    gradient = (np.dot(trn_x.T, (np.dot(trn_x, theta_f) - trn_y)))*l_rate
+    i = 0
+    current_loss = loss(trn_x, trn_y, theta_f)
+    while i > 5000:
+        theta_f = theta_f - gradient
+        gradient = (np.dot(trn_x.T, (np.dot(trn_x, theta_f) - trn_y)))*l_rate
+        current_loss = loss(trn_x, trn_y, theta_f)
+        i += 1
+    return theta_f
 
 
+def make_inputs(x_f, n):
+    y_f = np.ones(120)
+    y_f = np.matrix(y_f)
+    y_f = y_f.T
+    x_ones = np.ones(120)
+    x_ones = np.matrix(x_ones)
+    x_ones = x_ones.T
+    x_sq = np.square(x)
+    # print(x_sq.shape)
+    x_f = np.append(x_ones, x_f, 1)
+    x_f = np.append(x_f, x_sq, 1)
+    n = n-2
+    for i in range(n):
+        for j in range(x_f.shape[0]):
+            y_f[j, 0] = x_f[j, 1]*x_f[j, 2+i]
+        x_f = np.append(x_f, y_f, 1)
+    return x_f
 
 
 data = scipy.io.loadmat('dataset1.mat')
 x = np.asmatrix(data['X_trn'])
 y = np.asmatrix(data['Y_trn'])
-x_ones = np.ones(120)
-x_ones = np.matrix(x_ones)
-x_ones = x_ones.T
-x_sq = np.square(x)
-print(x_sq.shape)
-x = np.append(x_ones, x, 1)
-x = np.append(x, x_sq, 1)
-theta = close_form(x, y)
-print(theta.shape)
-print(x.shape)
+ord = np.argsort(x, axis=0)
+x = np.array(x)[ord]
+x = np.asmatrix(x)
+x = x.T
+y = np.array(y)[ord]
+y = np.asmatrix(y)
+y = y.T
+x = make_inputs(x, 2)
+
+theta = stoch_grad_descent(x, y, 0.00001, 10)
+# theta = close_form(x, y)
+print(loss(x, y, theta))
 predict = np.matmul(x, theta)
-print('asdasd')
-print(predict.shape)
 plt.scatter([x[:, 1]], [y[:, 0]])
 plt.plot(x[:, 1], predict[:, 0], color='red')
 plt.show()
