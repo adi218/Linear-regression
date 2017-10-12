@@ -9,45 +9,55 @@ import math
 # hyp = np.dot(theta.T, x_trn, t_loss)
 
 
-def loss(trn_x, trn_y, theta):
-    temp = np.dot(trn_x, theta) - trn_y
-    total_loss = np.linalg.norm(temp, ord=2)
-    return total_loss
+def loss(trn_x, trn_y, theta_f):
+    inner = np.linalg.norm((np.dot(trn_x, theta_f) - trn_y), 2)
+    return inner
 
 
 def close_form(trn_x, trn_y):
-    theta = np.dot(np.dot(np.linalg.inv(np.dot(trn_x.T, trn_x)), trn_x.T), trn_y)
+    theta_f = np.dot(np.linalg.inv(np.dot(trn_x.T, trn_x)), np.dot(trn_x.T, trn_y))
     # print(theta)
-    return theta
+    return theta_f
 
 
 def stoch_grad_descent(trn_x, trn_y, l_rate, batch):
-    theta_f = np.ones((trn_x.shape[1], 1))*3
+    theta_f = np.ones((trn_x.shape[1], 1))*5
     # idx = np.random.randint(120, size=batch)
     # idx = np.sort(idx)
     # batch_x = trn_x[idx, :]
-    # print(batch_x)
+    # print(theta_f)
     # batch_y = trn_y[idx, :]
     # print(batch_y)
     # gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y)))*l_rate
-    i = 0
     # current_loss = loss(batch_x, batch_y, theta_f)
-    while i < 30000:
-        idx = np.random.randint(120, size=batch)
-        idx = np.sort(idx)
-        batch_x = trn_x[idx, :]
-        batch_y = trn_y[idx, :]
-        gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y))) * l_rate
-        theta_f = theta_f - gradient
-        # gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y)))*l_rate
-        # current_loss = loss(batch_x, batch_y, theta_f)
-        i += 1
+    for it in range(20000):
+        index_set = set()
+        for i in range(trn_x.shape[0]):
+            index_set.add(i)
+        while len(index_set) > 0:
+            idx = []
+            if len(index_set) < batch:
+                while len(index_set) > 0:
+                    idx.append(index_set.pop())
+            else:
+                idx = random.sample(index_set, batch)
+            for x_val in idx:
+                # print(x_val)
+                index_set.remove(x_val)
+            # print(idx)
+            batch_x = trn_x[idx, :]
+            batch_y = trn_y[idx, :]
+            gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y))) * l_rate / batch
+            theta_f = theta_f - gradient
+        if it % 50 == 0:
+            # print(batch_x[:, 1], batch_y)
+            print(loss(trn_x, trn_y, theta_f))
     return theta_f
 
 
 def make_inputs(x_f, n):
     y_f = np.ones(x_f.shape[0])
-    print(x_f.shape[0])
+    # print(x_f.shape[0])
     y_f = np.matrix(y_f)
     y_f = y_f.T
     x_ones = np.ones(x_f.shape[0])
@@ -77,10 +87,10 @@ x = x.T
 y = np.array(y)[ord]
 y = np.asmatrix(y)
 y = y.T
-x = make_inputs(x, 3)
+x = make_inputs(x, 5)
 
-theta = stoch_grad_descent(x, y, 0.0000034, 30)
-# theta = close_form(x, y)
+theta = stoch_grad_descent(x, y, 0.000009, 10)
+theta_close = close_form(x, y)
 ord = np.argsort(x_test, axis=0)
 x_test = np.array(x_test)[ord]
 x_test = np.asmatrix(x_test)
@@ -90,11 +100,19 @@ y_test = np.asmatrix(y_test)
 y_test = y_test.T
 x_test = make_inputs(x_test, 3)
 print(loss(x, y, theta))
-print(loss(x_test, y_test, theta))
-predict = np.matmul(x_test, theta)
-plt.scatter([x_test[:, 1]], [y_test[:, 0]])
-plt.plot(x_test[:, 1], predict[:, 0], color='red')
+print(loss(x, y, theta_close))
+
+predict = np.matmul(x, theta)
+plt.scatter([x[:, 1]], [y[:, 0]])
+plt.plot(x[:, 1], predict[:, 0], color='red')
 plt.show()
+
+# predict = np.matmul(x_test, theta)
+# plt.scatter([x_test[:, 1]], [y_test[:, 0]])
+# plt.plot(x_test[:, 1], predict[:, 0], color='red')
+# plt.show()
+
+
 # print(data['X_trn'])
 # print(data['X_trn'].ndim)
 # print(data['Y_trn'])
