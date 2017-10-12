@@ -1,0 +1,4 @@
+import numpy as np
+
+temp = np.matrix(np.zeros((100, 2)))
+print(len(temp))
