@@ -10,8 +10,9 @@ import math
 
 
 def loss(trn_x, trn_y, theta_f):
-    inner = np.linalg.norm((np.dot(trn_x, theta_f) - trn_y), 2)
-    return inner
+    inner = np.square(np.dot(trn_x, theta_f) - trn_y)
+    err = np.sum(inner)/(trn_x.shape[0])
+    return err
 
 
 def close_form(trn_x, trn_y):
@@ -30,7 +31,7 @@ def stoch_grad_descent(trn_x, trn_y, l_rate, batch):
     # print(batch_y)
     # gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y)))*l_rate
     # current_loss = loss(batch_x, batch_y, theta_f)
-    for it in range(20000):
+    for it in range(50000):
         index_set = set()
         for i in range(trn_x.shape[0]):
             index_set.add(i)
@@ -49,7 +50,7 @@ def stoch_grad_descent(trn_x, trn_y, l_rate, batch):
             batch_y = trn_y[idx, :]
             gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y))) * l_rate / batch
             theta_f = theta_f - gradient
-        if it % 50 == 0:
+        if it % 1000 == 0:
             # print(batch_x[:, 1], batch_y)
             print(loss(trn_x, trn_y, theta_f))
     return theta_f
@@ -87,9 +88,13 @@ x = x.T
 y = np.array(y)[ord]
 y = np.asmatrix(y)
 y = y.T
-x = make_inputs(x, 5)
 
-theta = stoch_grad_descent(x, y, 0.000009, 10)
+n = 3
+learning_rate = 0.0001
+batch_size = 10
+x = make_inputs(x, n)
+
+theta = stoch_grad_descent(x, y, learning_rate, batch_size)
 theta_close = close_form(x, y)
 ord = np.argsort(x_test, axis=0)
 x_test = np.array(x_test)[ord]
@@ -98,19 +103,22 @@ x_test = x_test.T
 y_test = np.array(y_test)[ord]
 y_test = np.asmatrix(y_test)
 y_test = y_test.T
-x_test = make_inputs(x_test, 3)
-print(loss(x, y, theta))
-print(loss(x, y, theta_close))
+x_test = make_inputs(x_test, n)
+print('theta ', theta, ' theta_close ', theta_close)
+print('train', loss(x, y, theta))
+print('train close', loss(x, y, theta_close))
+print('test', loss(x_test, y_test, theta))
+print('test close', loss(x_test, y_test, theta_close))
 
 predict = np.matmul(x, theta)
 plt.scatter([x[:, 1]], [y[:, 0]])
 plt.plot(x[:, 1], predict[:, 0], color='red')
 plt.show()
 
-# predict = np.matmul(x_test, theta)
-# plt.scatter([x_test[:, 1]], [y_test[:, 0]])
-# plt.plot(x_test[:, 1], predict[:, 0], color='red')
-# plt.show()
+predict = np.matmul(x_test, theta)
+plt.scatter([x_test[:, 1]], [y_test[:, 0]])
+plt.plot(x_test[:, 1], predict[:, 0], color='red')
+plt.show()
 
 
 # print(data['X_trn'])
