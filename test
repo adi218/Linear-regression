@@ -31,7 +31,7 @@ def stoch_grad_descent(trn_x, trn_y, l_rate, batch):
     # print(batch_y)
     # gradient = (np.dot(batch_x.T, (np.dot(batch_x, theta_f) - batch_y)))*l_rate
     # current_loss = loss(batch_x, batch_y, theta_f)
-    for it in range(50000):
+    for it in range(5000):
         index_set = set()
         for i in range(trn_x.shape[0]):
             index_set.add(i)
@@ -110,6 +110,7 @@ print('train close', loss(x, y, theta_close))
 print('test', loss(x_test, y_test, theta))
 print('test close', loss(x_test, y_test, theta_close))
 
+print(theta)
 predict = np.matmul(x, theta)
 plt.scatter([x[:, 1]], [y[:, 0]])
 plt.plot(x[:, 1], predict[:, 0], color='red')
